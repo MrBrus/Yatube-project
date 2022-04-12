@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+{% block title %}
+  {{ title }}
+{% endblock %}
+{% block content %}
+{% load cache %}
+  <h1>Последние обновления на сайте</h1>
+  {% include 'includes/switcher.html' %}
+  {% cache 20 index with page_obj %}
+  {% for post in page_obj %}
+    {% include 'includes/post_card.html' %}
+    {% if not forloop.last %}<hr>{% endif %}
+  {% endfor %}
+  {% endcache %}
+  {% include 'includes/paginator.html' %}
+{% endblock %}

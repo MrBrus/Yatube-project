@@ -66,7 +66,6 @@ class PostCreateFormTests(TestCase):
         """Валидная форма коммента создает коммент к посту"""
         form_data = {
             'post': self.post,
-            'author': self.authorized_client_author,
             'text': 'Big bad comment',
         }
         response = self.authorized_client_author.post(

@@ -192,23 +192,26 @@ class PagesTest(TestCase):
 
     def test_cache_index(self):
         """Тест кэширования страницы index.html"""
-        first_get = self.authorized_client.get('/')
-        post_1 = Post.objects.get(pk=1)
+        first_get = self.authorized_client.get(reverse('posts:index'))
+        post_1 = self.authorized_client.get(self.post.pk)
         post_1.text = 'Changed text'
-        post_1.save()
-        second_get = self.authorized_client.get('/')
+        second_get = self.authorized_client.get(reverse('posts:index'))
         self.assertEqual(first_get.content, second_get.content)
         cache.clear()
-        third_get = self.authorized_client.get('/')
+        third_get = self.authorized_client.get(reverse('posts:index'))
         self.assertNotEqual(first_get.content, third_get.content)
 
     def test_follow(self):
         """Проверка подписки"""
-        self.authorized_client.get(reverse(
+        self.authorized_client.post(reverse(
             'posts:profile_follow',
             kwargs={'username': self.author.username}
         ))
         self.assertEqual(Follow.objects.all().count(), 1)
+        self.assertTrue(Follow.objects.filter(
+            user=self.user2,
+            author=self.user
+        ).exists())
 
     def test_unfollow(self):
         """Проверка отписки"""
@@ -221,6 +224,10 @@ class PagesTest(TestCase):
             kwargs={'username': self.author.username}
         ))
         self.assertEqual(Follow.objects.all().count(), 0)
+        self.assertFalse(Follow.objects.filter(
+            user=self.user2,
+            author=self.user
+        ).exists())
 
     def test_subscriber_follow_index_page(self):
         """Посты появляются в лентах подписчиков"""

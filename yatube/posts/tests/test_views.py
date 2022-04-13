@@ -193,8 +193,9 @@ class PagesTest(TestCase):
     def test_cache_index(self):
         """Тест кэширования страницы index.html"""
         first_get = self.authorized_client.get(reverse('posts:index'))
-        post_1 = self.authorized_client.get(self.post.pk)
+        post_1 = Post.objects.get(pk=self.post.id)
         post_1.text = 'Changed text'
+        post_1.save()
         second_get = self.authorized_client.get(reverse('posts:index'))
         self.assertEqual(first_get.content, second_get.content)
         cache.clear()
@@ -207,7 +208,6 @@ class PagesTest(TestCase):
             'posts:profile_follow',
             kwargs={'username': self.author.username}
         ))
-        self.assertEqual(Follow.objects.all().count(), 1)
         self.assertTrue(Follow.objects.filter(
             user=self.user2,
             author=self.user
@@ -223,7 +223,6 @@ class PagesTest(TestCase):
             'posts:profile_unfollow',
             kwargs={'username': self.author.username}
         ))
-        self.assertEqual(Follow.objects.all().count(), 0)
         self.assertFalse(Follow.objects.filter(
             user=self.user2,
             author=self.user
